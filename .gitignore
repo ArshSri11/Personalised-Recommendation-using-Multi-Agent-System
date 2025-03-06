@@ -1,3 +1,4 @@
 /all-MiniLM*
 /intel-extension-for-pytorch*
 /myenv*
+/faiss_index.bin
