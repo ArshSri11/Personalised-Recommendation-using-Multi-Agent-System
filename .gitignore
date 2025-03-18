@@ -3,3 +3,5 @@
 /myenv*
 /faiss_index.bin
 /keys.txt
+/tmp*
+/__pycache__*
