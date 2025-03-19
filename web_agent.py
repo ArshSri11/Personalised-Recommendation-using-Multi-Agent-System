@@ -1,9 +1,5 @@
-from agno.agent import Agent, RunResponse
-from agno.models.huggingface import HuggingFace
+from agno.agent import Agent
 from agno.tools.googlesearch import GoogleSearchTools
-from agno.tools.wikipedia import WikipediaTools
-from agno.tools.yfinance import YFinanceTools
-import os
 from agno.models.ollama import Ollama
 from agno.tools.duckduckgo import DuckDuckGoTools
 from pydantic import BaseModel, Field
@@ -24,7 +20,7 @@ Web_Agent = Agent(
     response_model=WebSearchResults,
     instructions=[
         "You will be provides with an query from user about which type of product he/she wants to buy.",
-        "Carefully read the query and provide the user with the top 5 products that match the query.",
+        "Carefully read the query and provide the user with the top 5 products (latest trending and most relevant) that match the query.",
         "Make sure to provide the product name, description and URL of the product.",
         "Give it as a list of products.",
     ],
