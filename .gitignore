@@ -5,3 +5,7 @@
 /keys.txt
 /tmp*
 /__pycache__*
+
+/*.db
+/Dataset/*
+/Dataset*
