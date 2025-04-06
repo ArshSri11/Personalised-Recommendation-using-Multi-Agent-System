@@ -41,14 +41,13 @@ class UserItemDB:
         """Retrieve user item history from the info database."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM History WHERE user_id = ?', (user_id,))
-        history_data = cursor.fetchall()
+        cursor.execute('SELECT user_id, history_item_id, history_rating FROM History WHERE user_id = ?', (user_id,))
+        history_data = cursor.fetchone()
         conn.close()
-        return [
-            {
-                'user_id': row[0],
-                'item_id': row[1],
-                'rating': row[2],
-                'timestamp': row[3]
-            } for row in history_data
-        ] if history_data else None
+        if history_data:
+            return {
+                'user_id': history_data[0],
+                'history_item_ids': json.loads(history_data[1]),
+                'history_ratings': json.loads(history_data[2])
+            }
+        return None

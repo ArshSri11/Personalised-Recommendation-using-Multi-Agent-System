@@ -5,8 +5,8 @@ from user_item_db import UserItemDB
 class UserAnalystAgent(Agent):
     def __init__(self, user_id):
         super().__init__(
-            model=Ollama(id="llama3.2"),
-            description="An agent that analyzes user preferences and item attributes for personalized movie recommendations."
+            model = Ollama(id="llama3.2"),
+            description = "An agent that analyzes user preferences and item attributes for personalized movie recommendations."
         )
         self.user_item_db = UserItemDB("movies_database.db")
         self.user_id = user_id
@@ -30,23 +30,30 @@ class UserAnalystAgent(Agent):
         if not user_history:
             return "No history found for this user."
         
+        past_item_ids = user_history['history_item_ids']
+        past_item_ratings = user_history['history_ratings']
+
+
+        
         # Count the number of ratings per genre
         genre_count = {}
         titles = {}
-        for record in user_history:
 
-            item_id = record['item_id']
-            rating = record['rating']
-            timestamp = record['timestamp']
+        time_count = 0
 
+        for item_id, rating in zip(past_item_ids, past_item_ratings):
             item_attributes = self.get_item_attributes(item_id)
+            if not item_attributes:
+                continue
+            
+            # Update genre count
+            for genre in item_attributes['genres']:
+                genre_count[genre] = genre_count.get(genre, 0) + rating
 
-            if item_attributes:
-                titles[item_attributes['title']] = (rating, timestamp)
+            # Store title and rating
+            titles[item_attributes['title']] = (rating, time_count)
 
-                genres = item_attributes['genres']
-                for genre in genres:
-                    genre_count[genre] = genre_count.get(genre, 0) + rating
+            time_count = time_count + 1
         
         # get recently watched movies
         titles = dict(sorted(titles.items(), key=lambda item: item[1][1], reverse=True))
@@ -55,6 +62,7 @@ class UserAnalystAgent(Agent):
         # Get highest rated movies
         highest_rated_movies = sorted(titles.items(), key=lambda item: item[1][0], reverse=True)[:5]
         highest_rated_movies = dict(highest_rated_movies)
+        highest_rated_movies = list(highest_rated_movies.keys())
 
         # Sort genres by count
         genre_count = dict(sorted(genre_count.items(), key=lambda item: item[1], reverse=True))
@@ -68,5 +76,3 @@ class UserAnalystAgent(Agent):
         }
 
         return summary
-    
-    

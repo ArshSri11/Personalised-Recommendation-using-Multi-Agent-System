@@ -3,6 +3,8 @@ from typing import Optional
 import typer
 from agno.agent import Agent
 from agno.models.ollama import Ollama
+from agno.tools.googlesearch import GoogleSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.storage.agent.sqlite import SqliteAgentStorage
 from rich.console import Console
 from rich.json import JSON
@@ -34,16 +36,18 @@ def create_chat_agent(user: str = "user"):
         session_id=session_id,
         model=Ollama(id="llama3.2"),
         storage=agent_storage,
+        tools=[GoogleSearchTools(fixed_max_results=100000), DuckDuckGoTools(fixed_max_results=100000)],
         # Add chat history to messages
         add_history_to_messages=True,
         num_history_responses=5,
         markdown=True,
-        description="You have to help the user for product recommendation.",
+        description="You have to help the user for movies recommendation.",
         instructions=[
-            "You will be provided with a 5 products from a web search agent.",
-            "You have to present these recommendations to the user along with URL in a friendly manner.",
-            "Summarize the recommendations from the web search agent and communicate them to the user.",
-            "You have to ask the user appropriate questions to understand the user's requirement.",
+            "You are a chat agent. Initially you will be given some information about the user like user's profile, preferred genres, and user's history.",
+            "You will use the tools provided to you to search for information.",
+            "You have to provide the user with recommendations based on the user's profile and history.",
+            "You have to ask the user for more information if you need it.",
+            "You have to provide the user with the best possible answer.",
         ],
     )
 

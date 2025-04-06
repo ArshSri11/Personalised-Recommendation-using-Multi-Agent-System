@@ -1,10 +1,11 @@
 import pandas as pd
 import sqlite3
+import json
 
 # Load CSV files, keeping only necessary columns
 users_df = pd.read_csv("Dataset\\data\\ml-100k\\user.csv", usecols=["user_id", "age", "gender", "occupation"])
 items_df = pd.read_csv("Dataset\\data\\ml-100k\\item.csv", usecols=["item_id", "title", "release_date", "genre"])
-history_df = pd.read_csv("Dataset\\data\\ml-100k\\dev.csv", usecols=["user_id", "item_id", "rating", "timestamp"])
+history_df = pd.read_csv("Dataset\\data\\ml-100k\\dev.csv", usecols=["user_id", "history_item_id", "history_rating", "timestamp"])
 
 # Connect to SQLite database (or create one if not exists)
 conn = sqlite3.connect("movies_database.db")
@@ -34,11 +35,10 @@ CREATE TABLE IF NOT EXISTS Items (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS History (
     user_id INTEGER,
-    item_id INTEGER,
-    rating INTEGER,
+    history_item_id TEXT,
+    history_rating TEXT,
     timestamp INTEGER,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (item_id) REFERENCES Items(item_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 """)
 
