@@ -48,6 +48,7 @@ def create_chat_agent(user: str = "user"):
             "You have to provide the user with recommendations based on the user's profile and history.",
             "You have to ask the user for more information if you need it.",
             "You have to provide the user with the best possible answer.",
+            "If user is asking for latest movies (beyond your knowledge cutoff i.e. Dec 2023), then use web search to fetch the latest movies.",
         ],
     )
 

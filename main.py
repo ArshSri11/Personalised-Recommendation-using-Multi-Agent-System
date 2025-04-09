@@ -4,7 +4,7 @@ from rich.prompt import Prompt
 from rich import print
 
 from web_agent import Web_Agent, Summerizer
-from user_memory import create_chat_agent, create_prompt_generator_agent
+from user_memory import create_chat_agent
 from user_item_analyst import UserAnalystAgent
 
 class SearchWorkflow(Workflow):
@@ -17,9 +17,6 @@ class SearchWorkflow(Workflow):
 
     # Define summerizer agent
     summerizer_agent: Agent = Summerizer
-
-    # Define query generator agent
-    prompt_generator_agent: Agent = create_prompt_generator_agent()
 
     # Define workflow steps
     def run(self) -> None:
@@ -35,27 +32,11 @@ class SearchWorkflow(Workflow):
 
         user_history = user_analyst_agent.analyze_user_preferences()
         print("User history: ", user_history)
-
-        highest_rated_movies = {}
-        recent_movies = {}
-
-        # for movie in user_history['highest_rated_movies_by_user']:
-        #     title = movie 
-        #     web_response = self.web_agent.run("Search for information of movie:" + title + " and return the information in text format")
-        #     web_content = web_response.content
-        #     web_content = self.summerizer_agent.run(web_content)
-        #     web_content = web_content.content
-        #     highest_rated_movies[title] = web_content
-        #     print("info : "+ web_content)
         
-        # for movie in user_history['recent_movies']:
-        #     title = movie 
-        #     web_response = self.web_agent.run("Search for information of movie:" + title)
-        #     web_content = web_response.content
-        #     recent_movies[title] = web_content
-        
-        query = str(user_history["user_profile"]) + "\n" + "highest rated movies by user: " + str(user_history['highest_rated_movies_by_user']) + "\n" + "recent movies: " + str(user_history['recent_movies']) + "\n" + "Genre count: " + str(user_history['top_genres'])
+        query = str(user_history["user_profile"]) + "\n" + "highest rated movies by user: " + str(user_history['highest_rated_movies_by_user']) + "\n" + "recent movies: " + str(user_history['recent_movies']) + "\n" + "Genre count from user's history: " + str(user_history['top_genres'])
         self.chat_agent.print_response(message=query, stream=True, markdown=True)
+
+        words_to_search = ["latest", "new", "recent", "2023", "2024", "2025"]
 
         # Start chat with user
         while True:
@@ -63,17 +44,13 @@ class SearchWorkflow(Workflow):
             if message in exit_on:
                 break
 
-            # # Get query from user
-            # query = self.prompt_generator_agent.run(message).content
-
-            # print("Query: ", query) 
-            
-            # # Get web response
-            # web_response = self.web_agent.run(query)
-            # web_content = web_response.content
-
-            # # Get chat response
-            # self.chat_agent.print_response(message=web_content, stream=True, markdown=True)
+            if any(word in message.lower() for word in words_to_search):
+                # Run web search agent
+                print("Running web search agent...")
+                response = self.web_agent.run(message)
+                self.summerizer_agent.print_response(message=response, stream=True, markdown=True)
+            else:
+                self.chat_agent.print_response(message=message, stream=True, markdown=True)
     
 def main():
     # Create workflow
